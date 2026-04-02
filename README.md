@@ -5,7 +5,7 @@
 
 ---
 
-## The Problem — Brutal Clarity
+## The Problem
 
 **B2B commerce runs on credit. The infrastructure powering it is broken.**
 
@@ -24,10 +24,10 @@ Three numbers explain the damage:
 The problem has three distinct failure points, and they compound each other:
 
 **Failure 1 — Buyers can't access credit where they need it.**
-Business credit cards require personal guarantees and carry limits far below what procurement demands. Invoice factoring is expensive (3–8% fees) and supplier-initiated. Trade credit is manually negotiated with each supplier independently — inconsistent, slow, and invisible to the finance team. There is no product that meets buyers at the moment of purchase and offers flexible terms instantly.
+Business credit cards require personal guarantees and carry limits far below what procurement demands. Invoice factoring is expensive (3–8% fees) and supplier-initiated. Trade credit is manually negotiated with each supplier independently inconsistent, slow, and invisible to the finance team. There is no product that meets buyers at the moment of purchase and offers flexible terms instantly.
 
 **Failure 2 — Suppliers absorb risk they cannot afford.**
-When a supplier extends Net-60 terms, he is effectively lending money to his buyer — interest-free, unsecured, and without consent. His receivables are frozen. His working capital shrinks. He either tightens terms (losing buyers) or absorbs the risk (constraining growth). There is no third option available to him today.
+When a supplier extends Net-60 terms, he is effectively lending money to his buyer - interest-free, unsecured, and without consent. His receivables are frozen. His working capital shrinks. He either tightens terms (losing buyers) or absorbs the risk (constraining growth). There is no third option available to him today.
 
 **Failure 3 — Finance teams fly blind.**
 The average mid-market finance controller manages 40+ supplier relationships with payment terms tracked in Excel. There is no consolidated view of credit exposure, no early-warning system for cash crunches, and no analytics layer that connects procurement decisions to cash flow outcomes. Financial risk is discovered, not anticipated.
@@ -47,7 +47,7 @@ The average B2B procurement order in our target segment is ₹4.5L ($5,400). A 6
 Three structural shifts have converged to make this moment the right one:
 
 **Shift 1 — The data infrastructure finally exists.**
-India's Account Aggregator (AA) framework went live in 2023. For the first time, a lender can pull 12 months of verified bank transaction data from a business in under 60 seconds — with the owner's consent, no branch visit, no physical documents. Combined with GSTN's real-time GST filing data (a government-verified revenue proxy), it is now possible to underwrite an SMB credit decision in under a minute with better signal than a traditional bank has after a 3-week manual review.
+India's Account Aggregator (AA) framework went live in 2023. For the first time, a lender can pull 12 months of verified bank transaction data from a business in under 60 seconds - with the owner's consent, no branch visit, no physical documents. Combined with GSTN's real-time GST filing data (a government-verified revenue proxy), it is now possible to underwrite an SMB credit decision in under a minute with better signal than a traditional bank has after a 3-week manual review.
 
 **Shift 2 — Procurement platforms have opened their distribution.**
 SAP Ariba, Zoho Books, and Tally collectively serve 2.3M+ business users in India. All three have opened APIs and marketplace programs in the last 24 months. The distribution infrastructure for embedded finance — the equivalent of Stripe's payment rails, but for procurement — is now accessible without building a marketplace from scratch.
