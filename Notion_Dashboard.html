@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PayLater Pro — PM Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-secondary: #f7f6f3;
+    --bg-hover: #efefef;
+    --text: #37352f;
+    --text-muted: #9b9a97;
+    --text-light: #c7c5bf;
+    --border: rgba(55,53,47,0.09);
+    --border-strong: rgba(55,53,47,0.16);
+    --blue: #2383e2;
+    --blue-light: #e8f3fd;
+    --green: #0f7b6c;
+    --green-light: #ddedea;
+    --amber: #c17d20;
+    --amber-light: #fbf3db;
+    --red: #c63a38;
+    --red-light: #fbe4e4;
+    --purple: #6940a5;
+    --purple-light: #f4f0fe;
+    --tag-h: 20px;
+    --radius: 4px;
+    --sidebar-w: 240px;
+    --font: 'Segoe UI', -apple-system, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: var(--sidebar-w);
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 8px 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+
+  .sidebar-workspace {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    margin-bottom: 4px;
+    border-radius: var(--radius);
+    cursor: pointer;
+  }
+
+  .ws-icon {
+    width: 24px;
+    height: 24px;
+    background: #37352f;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .ws-name { font-size: 13px; font-weight: 600; }
+  .ws-sub { font-size: 11px; color: var(--text-muted); }
+
+  .sidebar-section {
+    padding: 18px 14px 6px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: var(--radius);
+    color: var(--text);
+    transition: background 0.1s;
+    margin: 1px 6px;
+  }
+
+  .sidebar-item:hover { background: var(--bg-hover); }
+  .sidebar-item.active { background: var(--bg-hover); font-weight: 500; }
+
+  .sidebar-icon {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  .sidebar-badge {
+    margin-left: auto;
+    font-size: 11px;
+    background: var(--blue);
+    color: white;
+    border-radius: 10px;
+    padding: 1px 6px;
+  }
+
+  /* MAIN */
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 60px 80px;
+  }
+
+  .page-header {
+    margin-bottom: 32px;
+  }
+
+  .page-emoji { font-size: 48px; margin-bottom: 8px; display: block; }
+
+  .page-title {
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 4px;
+    line-height: 1.2;
+  }
+
+  .page-sub {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+  }
+
+  .page-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: var(--tag-h);
+    padding: 0 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .tag-blue { background: var(--blue-light); color: var(--blue); }
+  .tag-green { background: var(--green-light); color: var(--green); }
+  .tag-amber { background: var(--amber-light); color: var(--amber); }
+  .tag-red { background: var(--red-light); color: var(--red); }
+  .tag-purple { background: var(--purple-light); color: var(--purple); }
+  .tag-gray { background: var(--bg-hover); color: var(--text-muted); }
+
+  /* CALLOUT */
+  .callout {
+    background: var(--blue-light);
+    border-radius: 6px;
+    padding: 12px 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 32px;
+    font-size: 13px;
+    color: #1a4971;
+    border-left: 3px solid var(--blue);
+  }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 28px 0;
+  }
+
+  .section-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* METRICS GRID */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+
+  .metric-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    background: var(--bg);
+  }
+
+  .metric-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+
+  .metric-value {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .metric-change {
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+
+  .metric-change.up { color: var(--green); }
+  .metric-change.down { color: var(--red); }
+  .metric-change.neutral { color: var(--text-muted); }
+
+  /* CHARTS GRID */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .chart-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    background: var(--bg);
+  }
+
+  .chart-title {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: var(--text);
+  }
+
+  .chart-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+
+  .chart-canvas-wrap {
+    position: relative;
+    height: 200px;
+  }
+
+  .chart-canvas-wrap-tall {
+    position: relative;
+    height: 240px;
+  }
+
+  /* TABLE */
+  .notion-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 28px;
+  }
+
+  .notion-table th {
+    text-align: left;
+    padding: 8px 12px;
+    background: var(--bg-secondary);
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .notion-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+
+  .notion-table tr:last-child td { border-bottom: none; }
+  .notion-table tr:hover td { background: var(--bg-secondary); }
+
+  /* STATUS DOTS */
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .status-green .status-dot { background: #0f7b6c; }
+  .status-amber .status-dot { background: #c17d20; }
+  .status-blue .status-dot { background: #2383e2; }
+  .status-gray .status-dot { background: #9b9a97; }
+  .status-red .status-dot { background: #c63a38; }
+  .status-green { color: #0f7b6c; }
+  .status-amber { color: #c17d20; }
+  .status-blue { color: #2383e2; }
+  .status-gray { color: #9b9a97; }
+  .status-red { color: #c63a38; }
+
+  /* PROGRESS */
+  .progress-bar-wrap {
+    width: 100%;
+    height: 6px;
+    background: var(--bg-hover);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.6s ease;
+  }
+
+  /* TOGGLE SECTION */
+  .toggle-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 6px 0;
+    user-select: none;
+    color: var(--text);
+  }
+
+  .toggle-arrow {
+    font-size: 11px;
+    transition: transform 0.2s;
+    color: var(--text-muted);
+  }
+
+  .toggle-arrow.open { transform: rotate(90deg); }
+  .toggle-content { padding-left: 20px; margin-top: 8px; }
+
+  /* OKRS */
+  .okr-block { margin-bottom: 20px; }
+
+  .okr-objective {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .kr-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+
+  .kr-row:last-child { border-bottom: none; }
+
+  .kr-name { flex: 1; color: var(--text-muted); }
+  .kr-current { width: 60px; text-align: right; font-weight: 600; }
+  .kr-target { width: 60px; text-align: right; color: var(--text-muted); }
+  .kr-bar { width: 120px; }
+  .kr-pct { width: 40px; text-align: right; font-size: 11px; color: var(--text-muted); }
+
+  /* RISK CARDS */
+  .risk-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .risk-card {
+    border-radius: 6px;
+    padding: 14px;
+    font-size: 12px;
+  }
+
+  .risk-high { background: var(--red-light); border-left: 3px solid var(--red); }
+  .risk-medium { background: var(--amber-light); border-left: 3px solid var(--amber); }
+  .risk-low { background: var(--green-light); border-left: 3px solid var(--green); }
+
+  .risk-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+
+  .risk-high .risk-label { color: var(--red); }
+  .risk-medium .risk-label { color: var(--amber); }
+  .risk-low .risk-label { color: var(--green); }
+
+  .risk-name { font-weight: 600; margin-bottom: 4px; color: var(--text); }
+  .risk-desc { color: var(--text-muted); line-height: 1.4; }
+
+  /* FOOTER */
+  .footer {
+    margin-top: 48px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+    .main { padding: 24px 20px 60px; }
+    .metrics-grid { grid-template-columns: 1fr 1fr; }
+    .charts-grid { grid-template-columns: 1fr; }
+    .risk-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-workspace">
+    <div class="ws-icon">PL</div>
+    <div>
+      <div class="ws-name">PayLater Pro</div>
+      <div class="ws-sub">PM Command Center</div>
+    </div>
+  </div>
+
+  <div class="sidebar-section">Product</div>
+  <div class="sidebar-item active">
+    <span class="sidebar-icon">📊</span> Dashboard
+  </div>
+  <div class="sidebar-item">
+    <span class="sidebar-icon">📋</span> PRD v1.0
+  </div>
+  <div class="sidebar-item">
+    <span class="sidebar-icon">🗓️</span> Sprint Board
+  </div>
+  <div class="sidebar-item">
+    <span class="sidebar-icon">🧑‍💻</span> User Stories
+    <span class="sidebar-badge">16</span>
+  </div>
+
+  <div class="sidebar-section">Strategy</div>
+  <div class="sidebar-item">
+    <span class="sidebar-icon">💼</span> Business Case
+  </div>
+  <div class="sidebar-item">
+    <span class="sidebar-icon">📈</span> Market Analysis
+  </div>
+  <div class="sidebar-item">
+    <span class="sidebar-icon">⚔️</span> Competitor Analysis
+  </div>
+  <div class="sidebar-item">
+    <span class="sidebar-icon">🎯</span> OKRs
+  </div>
+
+  <div class="sidebar-section">Operations</div>
+  <div class="sidebar-item">
+    <span class="sidebar-icon">⚠️</span> Risk Register
+  </div>
+  <div class="sidebar-item">
+    <span class="sidebar-icon">📜</span> Regulatory Tracker
+  </div>
+  <div class="sidebar-item">
+    <span class="sidebar-icon">🤝</span> Stakeholders
+  </div>
+  <div class="sidebar-item">
+    <span class="sidebar-icon">🔗</span> Integration Partners
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+  <div class="page-header">
+    <span class="page-emoji">💳</span>
+    <div class="page-title">PayLater Pro</div>
+    <div class="page-sub">B2B Embedded BNPL for Procurement — PM Command Center</div>
+    <div class="page-tags">
+      <span class="tag tag-blue">Embedded Finance</span>
+      <span class="tag tag-green">B2B BNPL</span>
+      <span class="tag tag-purple">Procurement Infra</span>
+      <span class="tag tag-amber">Phase 1 — Beta</span>
+      <span class="tag tag-gray">Last updated: Apr 2026</span>
+    </div>
+  </div>
+
+  <div class="callout">
+    <span style="font-size:16px;">💡</span>
+    <div><strong>Strategic thesis:</strong> PayLater Pro is the only B2B BNPL product embedded natively inside procurement workflows. While Billie and Resolve build standalone portals, we are inside SAP Ariba and Zoho Books at the moment of purchase — the most defensible position in B2B embedded finance.</div>
+  </div>
+
+  <!-- METRICS -->
+  <div class="section-title">📌 Key Metrics — Year 1 Targets</div>
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="metric-label">TPV Target</div>
+      <div class="metric-value">$50M</div>
+      <div class="metric-change neutral">Year 1 goal</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Gross Revenue</div>
+      <div class="metric-value">$1.4M</div>
+      <div class="metric-change up">▲ 2.8% take rate</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">LTV : CAC</div>
+      <div class="metric-value">44:1</div>
+      <div class="metric-change up">▲ Best-in-class</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">CAC Payback</div>
+      <div class="metric-value">8 mo</div>
+      <div class="metric-change neutral">Target ≤ 9 mo</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Net Credit Loss</div>
+      <div class="metric-value">1.2%</div>
+      <div class="metric-change neutral">Base case target</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Credit Decision</div>
+      <div class="metric-value">&lt;60s</div>
+      <div class="metric-change up">▲ vs. 14 days (manual)</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Approval Rate</div>
+      <div class="metric-value">≥65%</div>
+      <div class="metric-change neutral">Qualified applicants</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label">Break-Even</div>
+      <div class="metric-value">M19</div>
+      <div class="metric-change neutral">Month 19 of 24</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- CHARTS ROW 1 -->
+  <div class="section-title">📊 Market Opportunity</div>
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-title">Global B2B BNPL Market Growth</div>
+      <div class="chart-sub">$B — Projected 2023–2028 at 45.7% CAGR</div>
+      <div class="chart-canvas-wrap">
+        <canvas id="marketGrowthChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">TAM / SAM / SOM — India Market</div>
+      <div class="chart-sub">Total addressable vs serviceable opportunity</div>
+      <div class="chart-canvas-wrap">
+        <canvas id="tamSamSomChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHARTS ROW 2 -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-title">Revenue & P&L Projection</div>
+      <div class="chart-sub">3-year TPV vs Revenue vs EBITDA ($M)</div>
+      <div class="chart-canvas-wrap-tall">
+        <canvas id="plChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Vertical Market Fit Score</div>
+      <div class="chart-sub">B2B BNPL applicability by industry segment</div>
+      <div class="chart-canvas-wrap-tall">
+        <canvas id="verticalChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHARTS ROW 3 -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-title">Buyer Willingness to Pay</div>
+      <div class="chart-sub">% acceptance at each fee tier (primary survey, n=312)</div>
+      <div class="chart-canvas-wrap">
+        <canvas id="wtpChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Seasonal Demand Patterns</div>
+      <div class="chart-sub">Projected BNPL demand index by month</div>
+      <div class="chart-canvas-wrap">
+        <canvas id="seasonalChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- COMPETITOR TABLE -->
+  <div class="section-title">⚔️ Competitive Feature Matrix</div>
+  <table class="notion-table">
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th>PayLater Pro</th>
+        <th>Resolve</th>
+        <th>Billie</th>
+        <th>CredAble</th>
+        <th>Oxyzo</th>
+        <th>Razorpay Cap.</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Embedded at checkout</strong></td>
+        <td><span class="tag tag-green">✅ Yes</span></td>
+        <td><span class="tag tag-red">❌ No</span></td>
+        <td><span class="tag tag-red">❌ No</span></td>
+        <td><span class="tag tag-red">❌ No</span></td>
+        <td><span class="tag tag-red">❌ No</span></td>
+        <td><span class="tag tag-red">❌ No</span></td>
+      </tr>
+      <tr>
+        <td><strong>India-native scoring</strong></td>
+        <td><span class="tag tag-green">✅ Yes</span></td>
+        <td><span class="tag tag-red">❌ No</span></td>
+        <td><span class="tag tag-red">❌ No</span></td>
+        <td><span class="tag tag-green">✅ Yes</span></td>
+        <td><span class="tag tag-green">✅ Yes</span></td>
+        <td><span class="tag tag-green">✅ Yes</span></td>
+      </tr>
+      <tr>
+        <td><strong>T+1 supplier settlement</strong></td>
+        <td><span class="tag tag-green">✅ Yes</span></td>
+        <td><span class="tag tag-green">✅ Yes</span></td>
+        <td><span class="tag tag-green">✅ Yes</span></td>
+        <td><span class="tag tag-green">✅ Yes</span></td>
+        <td><span class="tag tag-red">❌ No</span></td>
+        <td><span class="tag tag-red">❌ No</span></td>
+      </tr>
+      <tr>
+        <td><strong>SAP Ariba / Zoho integration</strong></td>
+        <td><span class="tag tag-blue">🔄 Planned</span></td>
+        <td><span class="tag tag-red">❌ No</span></td>
+        <td><span class="tag tag-red">❌ No</span></td>
+        <td><span class="tag tag-red">❌ No</span></td>
+        <td><span class="tag tag-red">❌ No</span></td>
+        <td><span class="tag tag-red">❌ No</span></td>
+      </tr>
+      <tr>
+        <td><strong>Real-time decision (&lt;60s)</strong></td>
+        <td><span class="tag tag-green">✅ Yes</span></td>
+        <td><span class="tag tag-green">✅ Yes</span></td>
+        <td><span class="tag tag-green">✅ Yes</span></td>
+        <td><span class="tag tag-red">❌ No</span></td>
+        <td><span class="tag tag-red">❌ No</span></td>
+        <td><span class="tag tag-green">✅ Yes</span></td>
+      </tr>
+      <tr>
+        <td><strong>Multi-approver workflow</strong></td>
+        <td><span class="tag tag-green">✅ Yes</span></td>
+        <td><span class="tag tag-red">❌ No</span></td>
+        <td><span class="tag tag-red">❌ No</span></td>
+        <td><span class="tag tag-red">❌ No</span></td>
+        <td><span class="tag tag-red">❌ No</span></td>
+        <td><span class="tag tag-red">❌ No</span></td>
+      </tr>
+      <tr>
+        <td><strong>Self-serve onboarding</strong></td>
+        <td><span class="tag tag-green">✅ Yes</span></td>
+        <td><span class="tag tag-green">✅ Yes</span></td>
+        <td><span class="tag tag-green">✅ Yes</span></td>
+        <td><span class="tag tag-red">❌ No</span></td>
+        <td><span class="tag tag-red">❌ No</span></td>
+        <td><span class="tag tag-green">✅ Yes</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="divider"></div>
+
+  <!-- OKR SECTION -->
+  <div class="section-title">🎯 OKRs — Year 1</div>
+
+  <div class="okr-block">
+    <div class="okr-objective">
+      <span class="tag tag-blue">O1</span>
+      Achieve product-market fit with enterprise procurement platforms
+    </div>
+    <div class="kr-row">
+      <span class="kr-name">Platform integration partnerships signed</span>
+      <span class="kr-current">1</span>
+      <span class="kr-target">/ 3</span>
+      <div class="kr-bar">
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" style="width:33%;background:#2383e2;"></div>
+        </div>
+      </div>
+      <span class="kr-pct">33%</span>
+    </div>
+    <div class="kr-row">
+      <span class="kr-name">Active business accounts (6 months)</span>
+      <span class="kr-current">120</span>
+      <span class="kr-target">/ 500</span>
+      <div class="kr-bar">
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" style="width:24%;background:#2383e2;"></div>
+        </div>
+      </div>
+      <span class="kr-pct">24%</span>
+    </div>
+    <div class="kr-row">
+      <span class="kr-name">Finance DM Net Promoter Score</span>
+      <span class="kr-current">38</span>
+      <span class="kr-target">/ 45</span>
+      <div class="kr-bar">
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" style="width:84%;background:#2383e2;"></div>
+        </div>
+      </div>
+      <span class="kr-pct">84%</span>
+    </div>
+  </div>
+
+  <div class="okr-block">
+    <div class="okr-objective">
+      <span class="tag tag-green">O2</span>
+      Build a scalable, low-loss credit product
+    </div>
+    <div class="kr-row">
+      <span class="kr-name">Credit approval rate (qualified)</span>
+      <span class="kr-current">61%</span>
+      <span class="kr-target">/ 65%</span>
+      <div class="kr-bar">
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" style="width:94%;background:#0f7b6c;"></div>
+        </div>
+      </div>
+      <span class="kr-pct">94%</span>
+    </div>
+    <div class="kr-row">
+      <span class="kr-name">Net credit loss rate (% of TPV)</span>
+      <span class="kr-current">1.4%</span>
+      <span class="kr-target">≤ 1.2%</span>
+      <div class="kr-bar">
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" style="width:82%;background:#c17d20;"></div>
+        </div>
+      </div>
+      <span class="kr-pct">82%</span>
+    </div>
+    <div class="kr-row">
+      <span class="kr-name">Avg. credit decision time (seconds)</span>
+      <span class="kr-current">52s</span>
+      <span class="kr-target">≤ 45s</span>
+      <div class="kr-bar">
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" style="width:72%;background:#c17d20;"></div>
+        </div>
+      </div>
+      <span class="kr-pct">72%</span>
+    </div>
+  </div>
+
+  <div class="okr-block">
+    <div class="okr-objective">
+      <span class="tag tag-amber">O3</span>
+      Drive revenue and unit economics
+    </div>
+    <div class="kr-row">
+      <span class="kr-name">Total Payment Volume (Year 1)</span>
+      <span class="kr-current">$18M</span>
+      <span class="kr-target">/ $50M</span>
+      <div class="kr-bar">
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" style="width:36%;background:#c17d20;"></div>
+        </div>
+      </div>
+      <span class="kr-pct">36%</span>
+    </div>
+    <div class="kr-row">
+      <span class="kr-name">Blended take rate</span>
+      <span class="kr-current">2.6%</span>
+      <span class="kr-target">/ 2.8%</span>
+      <div class="kr-bar">
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" style="width:93%;background:#0f7b6c;"></div>
+        </div>
+      </div>
+      <span class="kr-pct">93%</span>
+    </div>
+    <div class="kr-row">
+      <span class="kr-name">CAC payback period (months)</span>
+      <span class="kr-current">8.3mo</span>
+      <span class="kr-target">≤ 9mo</span>
+      <div class="kr-bar">
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" style="width:92%;background:#0f7b6c;"></div>
+        </div>
+      </div>
+      <span class="kr-pct">92%</span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- LAUNCH ROADMAP -->
+  <div class="section-title">🗺️ Launch Roadmap</div>
+  <table class="notion-table">
+    <thead>
+      <tr>
+        <th>Phase</th>
+        <th>Timeline</th>
+        <th>Key Milestones</th>
+        <th>TPV Target</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Phase 1 — Closed Beta</strong></td>
+        <td>Months 1–4</td>
+        <td>2 platform integrations, 50 buyer businesses, manual underwriting</td>
+        <td>$2M</td>
+        <td><span class="status status-amber"><span class="status-dot"></span>In Progress</span></td>
+      </tr>
+      <tr>
+        <td><strong>Phase 2 — Limited Launch</strong></td>
+        <td>Months 5–7</td>
+        <td>SAP Ariba + Zoho live, 200 businesses, automated underwriting &lt;₹5L</td>
+        <td>$15M</td>
+        <td><span class="status status-blue"><span class="status-dot"></span>Planned</span></td>
+      </tr>
+      <tr>
+        <td><strong>Phase 3 — Scale</strong></td>
+        <td>Months 8–12</td>
+        <td>Tally + Coupa live, dynamic credit limits, 500+ businesses</td>
+        <td>$50M</td>
+        <td><span class="status status-gray"><span class="status-dot"></span>Not Started</span></td>
+      </tr>
+      <tr>
+        <td><strong>Year 2 — Growth</strong></td>
+        <td>Months 13–24</td>
+        <td>Break-even at M19, SE Asia expansion planning, $180M TPV</td>
+        <td>$180M</td>
+        <td><span class="status status-gray"><span class="status-dot"></span>Roadmap</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="divider"></div>
+
+  <!-- RISK REGISTER -->
+  <div class="section-title">⚠️ Risk Register</div>
+  <div class="risk-grid">
+    <div class="risk-card risk-high">
+      <div class="risk-label">High Risk</div>
+      <div class="risk-name">Credit loss spike — Y1 cohort</div>
+      <div class="risk-desc">First-cohort SMBs are underwriting unknowns. A 4% NCL rate would trigger product review and breach funding covenants.</div>
+    </div>
+    <div class="risk-card risk-high">
+      <div class="risk-label">High Risk</div>
+      <div class="risk-name">RBI regulatory change</div>
+      <div class="risk-desc">Annual digital lending review could impose new fee disclosure rules or interest rate caps mid-launch.</div>
+    </div>
+    <div class="risk-card risk-medium">
+      <div class="risk-label">Medium Risk</div>
+      <div class="risk-name">Platform integration delays</div>
+      <div class="risk-desc">SAP Ariba sandbox access and Zoho Marketplace approval can take 6–10 weeks; any delay pushes Phase 2.</div>
+    </div>
+    <div class="risk-card risk-medium">
+      <div class="risk-label">Medium Risk</div>
+      <div class="risk-name">Razorpay enters B2B BNPL</div>
+      <div class="risk-desc">Razorpay Capital pivot to B2B BNPL would immediately threaten our distribution with their 500K merchant base.</div>
+    </div>
+    <div class="risk-card risk-low">
+      <div class="risk-label">Low Risk</div>
+      <div class="risk-name">SMB digital adoption lag</div>
+      <div class="risk-desc">Some traditional SMBs may resist AA consent. WhatsApp-assisted KYB flow mitigates. Estimated 15% fallout.</div>
+    </div>
+    <div class="risk-card risk-low">
+      <div class="risk-label">Low Risk</div>
+      <div class="risk-name">Cost of funds increase</div>
+      <div class="risk-desc">If RBI raises repo rate 50bps+, AIF credit facility cost rises. Hedged by moving to bank co-lending by Month 12.</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- INTEGRATION PARTNERS -->
+  <div class="section-title">🔗 Integration Partners</div>
+  <table class="notion-table">
+    <thead>
+      <tr>
+        <th>Partner</th>
+        <th>Type</th>
+        <th>Priority</th>
+        <th>Timeline</th>
+        <th>Status</th>
+        <th>Owner</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>SAP Ariba</strong></td>
+        <td>Procurement Platform</td>
+        <td><span class="tag tag-red">P0</span></td>
+        <td>Month 3</td>
+        <td><span class="status status-amber"><span class="status-dot"></span>In Negotiation</span></td>
+        <td>Head of Partnerships</td>
+      </tr>
+      <tr>
+        <td><strong>Zoho Books</strong></td>
+        <td>Procurement Platform</td>
+        <td><span class="tag tag-red">P0</span></td>
+        <td>Month 4</td>
+        <td><span class="status status-amber"><span class="status-dot"></span>In Negotiation</span></td>
+        <td>Head of Partnerships</td>
+      </tr>
+      <tr>
+        <td><strong>Razorpay</strong></td>
+        <td>Payment Gateway</td>
+        <td><span class="tag tag-red">P0</span></td>
+        <td>Month 2</td>
+        <td><span class="status status-green"><span class="status-dot"></span>Signed</span></td>
+        <td>VP Engineering</td>
+      </tr>
+      <tr>
+        <td><strong>Finvu (AA)</strong></td>
+        <td>Account Aggregator</td>
+        <td><span class="tag tag-red">P0</span></td>
+        <td>Month 2</td>
+        <td><span class="status status-green"><span class="status-dot"></span>Signed</span></td>
+        <td>VP Engineering</td>
+      </tr>
+      <tr>
+        <td><strong>Tally Prime</strong></td>
+        <td>ERP Platform</td>
+        <td><span class="tag tag-amber">P1</span></td>
+        <td>Month 6</td>
+        <td><span class="status status-blue"><span class="status-dot"></span>Planned</span></td>
+        <td>Head of Partnerships</td>
+      </tr>
+      <tr>
+        <td><strong>Coupa</strong></td>
+        <td>Procurement Platform</td>
+        <td><span class="tag tag-amber">P1</span></td>
+        <td>Month 7</td>
+        <td><span class="status status-gray"><span class="status-dot"></span>Not Started</span></td>
+        <td>Head of Partnerships</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="footer">
+    <div>PayLater Pro — Product Management Documentation — v1.0 — April 2026</div>
+    <div>Confidential · Internal Use Only</div>
+  </div>
+
+</main>
+
+<script>
+const chartDefaults = {
+  plugins: {
+    legend: { labels: { font: { family: 'Segoe UI, sans-serif', size: 11 }, color: '#9b9a97', boxWidth: 12 } }
+  }
+};
+
+// 1. Market Growth Chart
+new Chart(document.getElementById('marketGrowthChart'), {
+  type: 'bar',
+  data: {
+    labels: ['2023', '2024', '2025', '2026', '2027', '2028'],
+    datasets: [{
+      label: 'Global B2B BNPL ($B)',
+      data: [7.3, 10.6, 15.4, 22.4, 32.6, 50.2],
+      backgroundColor: '#2383e2',
+      borderRadius: 4,
+      borderSkipped: false
+    }]
+  },
+  options: {
+    ...chartDefaults,
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: { grid: { display: false }, ticks: { color: '#9b9a97', font: { size: 11 } } },
+      y: { grid: { color: 'rgba(55,53,47,0.06)' }, ticks: { color: '#9b9a97', font: { size: 11 }, callback: v => '$' + v + 'B' } }
+    }
+  }
+});
+
+// 2. TAM/SAM/SOM
+new Chart(document.getElementById('tamSamSomChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['TAM — India B2B Digital ($530B)', 'SAM — Mid-market procurement ($8.2B)', 'SOM Y1 — PayLater Pro ($50M)'],
+    datasets: [{
+      data: [530000, 8200, 50],
+      backgroundColor: ['#dbeafe', '#93c5fd', '#2383e2'],
+      borderWidth: 2,
+      borderColor: '#ffffff'
+    }]
+  },
+  options: {
+    ...chartDefaults,
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 10 }, color: '#9b9a97', boxWidth: 10 } },
+      tooltip: { callbacks: { label: ctx => ' ' + ctx.label } }
+    }
+  }
+});
+
+// 3. P&L Chart
+new Chart(document.getElementById('plChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Year 1', 'Year 2', 'Year 3'],
+    datasets: [
+      { label: 'TPV ($M)', data: [50, 180, 480], backgroundColor: 'rgba(35,131,226,0.15)', borderColor: '#2383e2', borderWidth: 2, type: 'bar', yAxisID: 'tpv', borderRadius: 4 },
+      { label: 'Gross Revenue ($M)', data: [1.4, 5.04, 13.44], backgroundColor: '#0f7b6c', borderRadius: 4, yAxisID: 'rev' },
+      { label: 'EBITDA ($M)', data: [-9.2, -5.16, -0.56], backgroundColor: ctx => ctx.raw < 0 ? '#fbe4e4' : '#ddedea', borderColor: ctx => ctx.raw < 0 ? '#c63a38' : '#0f7b6c', borderWidth: 1, borderRadius: 4, yAxisID: 'rev' }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { labels: { font: { size: 11 }, color: '#9b9a97', boxWidth: 12 } } },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: '#9b9a97' } },
+      tpv: { position: 'right', grid: { display: false }, ticks: { color: '#2383e2', font: { size: 10 }, callback: v => '$' + v + 'M' } },
+      rev: { position: 'left', grid: { color: 'rgba(55,53,47,0.06)' }, ticks: { color: '#9b9a97', font: { size: 10 }, callback: v => '$' + v + 'M' } }
+    }
+  }
+});
+
+// 4. Vertical Chart
+new Chart(document.getElementById('verticalChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Manufacturing', 'D2C & Retail', 'Construction', 'Pharma', 'Food & Agri', 'IT Hardware'],
+    datasets: [{
+      label: 'BNPL Fit Score (out of 5)',
+      data: [4.9, 4.8, 4.2, 4.1, 3.4, 3.2],
+      backgroundColor: ['#2383e2', '#2383e2', '#93c5fd', '#93c5fd', '#dbeafe', '#dbeafe'],
+      borderRadius: 4
+    }]
+  },
+  options: {
+    ...chartDefaults,
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: { max: 5, grid: { color: 'rgba(55,53,47,0.06)' }, ticks: { color: '#9b9a97', font: { size: 11 } } },
+      y: { grid: { display: false }, ticks: { color: '#37352f', font: { size: 11 } } }
+    },
+    plugins: { legend: { display: false } }
+  }
+});
+
+// 5. WTP Chart
+new Chart(document.getElementById('wtpChart'), {
+  type: 'line',
+  data: {
+    labels: ['Free (Net-30)', '1% (Pay-in-3)', '1.8% (Pay-in-6)', '2.5%', '>3%'],
+    datasets: [{
+      label: 'Buyer acceptance (%)',
+      data: [89, 74, 61, 44, 21],
+      borderColor: '#2383e2',
+      backgroundColor: 'rgba(35,131,226,0.08)',
+      fill: true,
+      tension: 0.4,
+      pointBackgroundColor: '#2383e2',
+      pointRadius: 5
+    }]
+  },
+  options: {
+    ...chartDefaults,
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: { grid: { display: false }, ticks: { color: '#9b9a97', font: { size: 11 } } },
+      y: { min: 0, max: 100, grid: { color: 'rgba(55,53,47,0.06)' }, ticks: { color: '#9b9a97', font: { size: 11 }, callback: v => v + '%' } }
+    }
+  }
+});
+
+// 6. Seasonal Chart
+new Chart(document.getElementById('seasonalChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    datasets: [{
+      label: 'Demand index',
+      data: [120, 90, 125, 85, 80, 88, 92, 100, 108, 145, 160, 138],
+      backgroundColor: ctx => ctx.raw >= 130 ? '#2383e2' : ctx.raw >= 100 ? '#93c5fd' : '#dbeafe',
+      borderRadius: 3
+    }]
+  },
+  options: {
+    ...chartDefaults,
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: '#9b9a97', font: { size: 11 } } },
+      y: { grid: { color: 'rgba(55,53,47,0.06)' }, ticks: { color: '#9b9a97', font: { size: 11 } } }
+    }
+  }
+});
+</script>
+
+</body>
+</html>
